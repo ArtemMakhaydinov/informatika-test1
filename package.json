@@ -1,0 +1,21 @@
+{
+  "name": "informatika-test1",
+  "version": "1.0.0",
+  "description": "Тестовое задание",
+  "main": "index.js",
+  "scripts": {
+    "devstart": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "populatedb": "node populatedb.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
