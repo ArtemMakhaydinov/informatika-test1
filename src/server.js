@@ -8,26 +8,26 @@ const PORT = process.env.PORT || 3000;
 
 const routing = {
     '/': `<a href = "/all"> <span>All records</span> </a> </br>
+        <a href = "/cars"> <span>All cars</span> </a> </br>
         <a href = "/owners"> <span>All owners</span> </a> </br>
         <a href = "/ownership"> <span>All ownership</span> </a> </br>
-        <a href = "/cars"> <span>All cars</span> </a> </br>
         <a href = "/date?date=2002-1-1"> <span>Owners on 2002-01-01</span> </a> </br>
         <a href = "/date?date=2005-02-10"> <span>Owners on 2005-02-10</span> </a> </br>`,
     '/cars': async () => await service.getAllCars(),
     '/owners': async () => await service.getAllOwners(),
     '/ownership': async () => await service.getAllOwnership(),
     '/all': async () => await service.getAllRecords(),
-    '/date': async (param) => await service.getOwnersOnDate(param.date),
+    '/date': async (params) => await service.getOwnersOnDate(params.date),
     '/api/cars': async () => await service.getAllCars(),
     '/api/owners': async () => await service.getAllOwners(),
     '/api/ownership': async () => await service.getAllOwnership(),
     '/api/all': async () => await service.getAllRecords(),
-    '/api/date': async (param) => await service.getOwnersOnDate(param.date),
+    '/api/date': async (params) => await service.getOwnersOnDate(params.date),
 };
 
 const types = {
     string: (s) => s,
-    function: (fn, params) => fn(...params),
+    function: (fn, params) => fn(params),
     undefined: () => 'Not found.',
 };
 
@@ -51,18 +51,27 @@ const HTMLtableBuilder = (data) => {
     return htmlString;
 };
 
+const getQueryParams = (url) => {
+    const params = {};
+    try{
+        if (url.includes('?')) {
+            const paramsString = url.split('?')[1];
+            paramsString.split('&')
+                .forEach(param => {
+                    const[key, value] = param.split('=');
+                    params[key] = value;
+                });
+        };
+    } catch (err) {
+        return {};
+    }
+    return params;
+}
+
 const router = async (req, res) => {
     const url = req.url.split('?')[0];
     const isApi = url.split('/')[1] === 'api';
-    let params = [];
-    if (req.url.includes('?')) {
-        const paramsString = req.url.split('?')[1];
-        params = paramsString.split('&')
-            .map(param => {
-                const [key, value] = param.split('=');
-                return { [key]: value };
-            });
-    }
+    const params = getQueryParams(req.url);
     const route = routing[url];
     const type = typeof route;
     const serializer = types[type];
@@ -70,7 +79,7 @@ const router = async (req, res) => {
     if (isApi || data instanceof Error) return JSON.stringify(data);
     if (typeof data !== 'object') return data;
     if (!data.length) return 'Not found.';
-    return HTMLtableBuilder(data)
+    return HTMLtableBuilder(data);
 };
 
 http.createServer(async (req, res) => {

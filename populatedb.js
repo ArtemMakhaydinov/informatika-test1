@@ -69,7 +69,6 @@ const ownerships = [
 ];
 
 const createRecords = async (cars, owners, ownerships) => {
-    await db.init();
     const { pool } = db;
     const client = await pool.connect();
     const carIds = [];
@@ -81,6 +80,7 @@ const createRecords = async (cars, owners, ownerships) => {
             RETURNING *`,
             [car]
         );
+        
         console.log(record.rows[0]);
         carIds.push(record.rows[0].id);
     };
@@ -92,6 +92,7 @@ const createRecords = async (cars, owners, ownerships) => {
             RETURNING *`,
             [owner]
         );
+
         console.log(record.rows[0]);
         ownersIds.push(record.rows[0].id);
     };
@@ -106,6 +107,7 @@ const createRecords = async (cars, owners, ownerships) => {
             RETURNING *`,
             [carId, ownerId, purchaseDate, saleDate]
         );
+        
         console.log(record.rows[0]);
     };
     
@@ -115,6 +117,7 @@ const createRecords = async (cars, owners, ownerships) => {
 const init = async () => {
     const { pool } = db;
     try {
+        await db.init();
         await createRecords(cars, owners, ownerships);
     } catch (err) {
         console.error(err);
